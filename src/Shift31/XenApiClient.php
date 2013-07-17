@@ -75,8 +75,12 @@ class XenApiClient
 
 		if (is_array($response) && $response['Status'] == 'Success') {
 			$this->_sessionId = $response['Value'];
-		} else {
+		} else if ($response == null) {
+			throw new \Exception("XenAPI error: null response...check hostname or connectivity");
+		} else if (isset($response['ErrorDescription'])) {
 			throw new \Exception("XenAPI error: " . implode(' ', $response['ErrorDescription']));
+		} else {
+			throw new \Exception("XenAPI error: unknown");
 		}
 	}
 
@@ -139,15 +143,10 @@ class XenApiClient
 				$this->_login();
 				$this->call($method, $args);
 			}
+		} else if (isset($response['ErrorDescription'])) {
+			throw new \Exception("XenAPI error: " . implode(' ', $response['ErrorDescription']));
 		} else {
-			if ($response == null) {
-				throw new \Exception("XenAPI error: null response...check hostname or connectivity");
-			} else if (isset($response['ErrorDescription'])) {
-				throw new \Exception("XenAPI error: " . implode(' ', $response['ErrorDescription']));
-			} else {
-				throw new \Exception("XenAPI error: unknown");
-			}
-
+			throw new \Exception("XenAPI error: unknown");
 		}
 
 		return $responseValue;
