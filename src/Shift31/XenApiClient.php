@@ -140,7 +140,14 @@ class XenApiClient
 				$this->call($method, $args);
 			}
 		} else {
-			throw new \Exception("XenAPI error: " . implode(' ', $response['ErrorDescription']));
+			if ($response == null) {
+				throw new \Exception("XenAPI error: null response...check hostname or connectivity");
+			} else if (isset($response['ErrorDescription'])) {
+				throw new \Exception("XenAPI error: " . implode(' ', $response['ErrorDescription']));
+			} else {
+				throw new \Exception("XenAPI error: unknown");
+			}
+
 		}
 
 		return $responseValue;
